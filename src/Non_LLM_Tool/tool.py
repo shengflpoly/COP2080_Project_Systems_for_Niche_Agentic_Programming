@@ -9,7 +9,17 @@
 # Usage : See README.md for a sample call.
 # -------------------------------------------------------
 
-def irrigation_volume(area_m2: float, crop_coefficient: float, et0_mm: float) -> dict:
+from langchain.tools import tool
+import streamlit as st
+
+crops = {
+
+    
+
+}
+
+@tool
+def irrigation_volume(_: str) -> dict:
     """
     This tool is to retrieve the irrigation volume from a specific crop, size of the land, and the rate of water loss.
 
@@ -27,13 +37,18 @@ def irrigation_volume(area_m2: float, crop_coefficient: float, et0_mm: float) ->
     Raises:
         ValueError: if any input is out of expected range or type.
     """
+
+    area_m2 = st.session_state.area
+    crop_coefficient = st.session_state.crop_coefficient
+    et0_mm = st.session_state.et0
+
     # --- Input Validation ---
     if area_m2 <= 0:
-        raise ValueError("area_m2 must be positive.")
+        raise ValueError("area must be positive.")
     if crop_coefficient <= 0:
         raise ValueError("crop_coefficient must be positive.")
     if et0_mm <= 0:
-        raise ValueError("eto_mm must be positive.")
+        raise ValueError("et0 must be positive.")
     # --- Core Logic ---
     liters = area_m2 * crop_coefficient * et0_mm
     liters = round(liters, 2)
