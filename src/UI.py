@@ -1,6 +1,6 @@
 import streamlit as st
 from Non_LLM_Tool.tool import crops
-from model import agent, llm
+from model import run_agent, llm
 import os
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
@@ -27,32 +27,52 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = [SystemMessage(content=SYSTEM_PROMPT)]
 
 # HEADER
+st.title("Farmbot")
 st.markdown("", unsafe_allow_html=True)
 st.markdown("", unsafe_allow_html=True)
 st.divider()
 
-with st.sidebar:
-    st.session_state.crop = st.selectbox()
-    st.session_state.crop_coefficient = crops[st.session_state.crop]
-    st.session_state.area = st.number_input()
-    st.session_state.et0 = st.number_input()
 
-    if st.button():
-        st.rerun()
+# with st.sidebar:
 
+#     if "crop" not in st.session_state or st.session_state.crop is None:
+#         st.session_state.crop = list(crops.keys())[0]
+
+#     st.session_state.crop = st.selectbox(
+#         "Select crop",
+#         list(crops.keys()),
+#         index=list(crops.keys()).index(st.session_state.crop)
+#     )
+
+#     st.session_state.crop_coefficient = crops.get(st.session_state.crop, 1.0)
+
+#     st.session_state.area = st.number_input(
+#         "Field area (hectares)",
+#         min_value=0.0,
+#         value=1.0
+#     )
+
+#     st.session_state.et0 = st.number_input(
+#         "ET₀",
+#         min_value=0.0,
+#         value=5.0
+#     )
+
+#     if st.button("Recalculate"):
+#         st.rerun()
 
 # DISPLAY CHAT HISTORY
 if not st.session_state.messages:
     # Show welcome message on first load
     with st.chat_message("assistant"):
-        st.markdown("Hey there! I'm **Yuki-AI**, your Anime DLC guide! \n\nI can help you find the perfect DLC pack for your SteamDeck. Which anime series are you into?")
+        st.markdown("Hello, I am your farming chatbot.")
 else:
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
 # CHAT INPUT
-user_input = st.chat_input("Ask about DLC, anime, or SteamDeck games...")
+user_input = st.chat_input("Ask about farming stuff.")
 if user_input:
     # 1. user message
     with st.chat_message("user"):
@@ -69,15 +89,17 @@ if user_input:
         "Get a free key at [Google AI Studio](https://aistudio.google.com)."
         )
     else:
-    # Call the Gemini model
-        with st.spinner("Yuki-AI is thinking..."):
+        with st.spinner("Farmbot is thinking..."):
             try:
-                response = agent.invoke(st.session_state.chat_history)
-                response_text = response.content
-                # Add AI response to LangChain history for multi-turn memory
-                st.session_state.chat_history.append(AIMessage(content=response_text))
+                # fix to make the correct function call
+                messages_str = "\n".join(f"{m['role']}: {m['content']}"for m in st.session_state.messages)
+                response_text = run_agent(messages_str)
+                st.session_state.chat_history.append(
+                    AIMessage(content=response_text)
+                )
+
             except Exception as e:
-                response_text = f"Error calling Gemini API:`{str(e)}`"
+                response_text = f"Error calling Gemini API: `{str(e)}`"
     # 3. Show response
     with st.chat_message("assistant"):
         st.markdown(response_text)
