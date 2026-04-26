@@ -1,0 +1,13 @@
+Evapotranspiration (ET0) measures water loss from soil and plants.
+
+Crop coefficient (Kc) adjusts ET0 based on crop type.
+
+Typical Kc values:
+Corn: 0.8-1.2
+Wheat 0.7-1.0
+Vegetables: 0.5-1.0
+
+Irrigation volume formula:
+Volume = Area * Kc * ET0
+
+Efficient irrigation reduces water waste and improves yield.
